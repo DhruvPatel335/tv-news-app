@@ -1,4 +1,4 @@
-package com.dhruvpatel.tvnews.ui.theme
+package com.dhruvpatel.tvnews.presentation.ui.theme
 
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily

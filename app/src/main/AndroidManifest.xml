@@ -10,6 +10,7 @@
         android:required="false" />
 
     <application
+        android:name=".NewsApplication"
         android:allowBackup="true"
         android:banner="@mipmap/ic_launcher"
         android:icon="@mipmap/ic_launcher"
@@ -17,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NewsHeadlines">
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

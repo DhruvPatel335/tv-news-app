@@ -1,4 +1,4 @@
-package com.dhruvpatel.tvnews
+package com.dhruvpatel.tvnews.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,8 +11,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
-import com.dhruvpatel.tvnews.ui.theme.NewsHeadlinesTheme
+import com.dhruvpatel.tvnews.presentation.ui.theme.NewsHeadlinesTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalTvMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
