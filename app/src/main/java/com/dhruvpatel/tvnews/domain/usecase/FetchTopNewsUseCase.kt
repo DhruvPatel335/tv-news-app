@@ -11,9 +11,8 @@ class FetchTopNewsUseCase @Inject constructor(
         return try {
             repository.fetchTopNews()
             Result.success(Unit)
-        } catch (e: CancellationException) {
-            Result.failure(e)
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.failure(e)
         }
     }

@@ -33,15 +33,11 @@ class NewsRepositoryImpl @Inject constructor(
 
     override suspend fun fetchTopNews() {
         refreshMutex.withLock {
-            try {
-                val response = apiService.getTopHeadlines(apiKey = BuildConfig.NEWS_API_KEY)
-                val entities = response.articles.map { it.toArticleEntity() }
-                dao.clearArticles()
-                dao.insertArticles(entities)
-                refreshCount++
-            } catch (e: Exception) {
-                throw e
-            }
+            val response = apiService.getTopHeadlines(apiKey = BuildConfig.NEWS_API_KEY)
+            val entities = response.articles.map { it.toArticleEntity() }
+            dao.clearArticles()
+            dao.insertArticles(entities)
+            refreshCount++
         }
     }
 
@@ -50,31 +46,35 @@ class NewsRepositoryImpl @Inject constructor(
         refreshMutex.withLock {
             // Structured Concurrency: coroutineScope ensures all child coroutines finish or fail together
             coroutineScope {
-                val categories = listOf("general", "business", "technology", "science")
+                val categories = listOf("business", "technology", "science")
 
                 // Parallelism: Launch multiple API calls concurrently
-                val deferredArticles = categories.map { category ->
+                val results = categories.map { category ->
                     async {
-                        try {
-                            val result = apiService.getTopHeadlines(
+                        runCatching {
+                            apiService.getTopHeadlines(
                                 category = category,
                                 apiKey = BuildConfig.NEWS_API_KEY
                             ).articles.map { it.toArticleEntity() }
-                            result
-                        } catch (e: Exception) {
-                            throw e
                         }
                     }
-                }
+                }.awaitAll()
 
-                // Wait for all parallel calls to complete
-                val allArticles = deferredArticles.awaitAll().flatten()
+                val allArticles = results.mapNotNull { it.getOrNull() }.flatten()
+                val failures = results.filter { it.isFailure }
 
                 // Mutex protects the database consistency and the shared refreshCount
-                dao.clearArticles()
-                dao.insertArticles(allArticles)
-                
-                refreshCount++ 
+                if (allArticles.isNotEmpty()) {
+                    dao.clearArticles()
+                    dao.insertArticles(allArticles)
+                    refreshCount++
+                }
+
+                // If any category failed, throw the first error to notify the ViewModel
+                // but only after we've saved the successful ones.
+                if (failures.isNotEmpty()) {
+                    throw failures.first().exceptionOrNull()!!
+                }
             }
         }
     }
