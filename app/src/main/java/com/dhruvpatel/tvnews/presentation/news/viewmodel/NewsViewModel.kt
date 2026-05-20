@@ -1,12 +1,17 @@
-package com.dhruvpatel.tvnews.presentation.news
+package com.dhruvpatel.tvnews.presentation.news.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dhruvpatel.tvnews.domain.usecase.GetNewsUseCase
 import com.dhruvpatel.tvnews.domain.usecase.RefreshNewsUseCase
+import com.dhruvpatel.tvnews.presentation.news.model.NewsState
+import com.dhruvpatel.tvnews.presentation.news.model.NewsUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -21,6 +26,9 @@ class NewsViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(NewsState())
     val state: StateFlow<NewsState> = _state.asStateFlow()
+
+    private val _eventFlow = MutableSharedFlow<NewsUiEvent>()
+    val eventFlow: SharedFlow<NewsUiEvent> = _eventFlow.asSharedFlow()
 
     init {
         getArticles()
@@ -45,7 +53,11 @@ class NewsViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = false)
             
             result.onFailure { error ->
-                _state.value = _state.value.copy(error = error.message ?: "Failed to refresh news")
+                if (_state.value.articles.isEmpty()) {
+                    _state.value = _state.value.copy(error = error.message ?: "Failed to refresh news")
+                } else {
+                    _eventFlow.emit(NewsUiEvent.ShowToast(error.message ?: "Failed to refresh news. Showing cached data."))
+                }
             }
         }
     }

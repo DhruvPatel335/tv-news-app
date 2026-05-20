@@ -1,6 +1,6 @@
-package com.dhruvpatel.tvnews.data.source
+package com.dhruvpatel.tvnews.data.remote
 
-import com.dhruvpatel.tvnews.data.model.NewsResponseDto
+import com.dhruvpatel.tvnews.data.remote.dto.NewsResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 

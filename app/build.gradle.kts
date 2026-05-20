@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.tv.foundation)
     implementation(libs.androidx.tv.material)
+    implementation(libs.androidx.compose.material3)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.nav.compose)
     ksp(libs.hilt.compiler)

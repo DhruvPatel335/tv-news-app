@@ -1,10 +1,10 @@
 package com.dhruvpatel.tvnews.data.repository
 
 import com.dhruvpatel.tvnews.BuildConfig
-import com.dhruvpatel.tvnews.data.model.toArticleEntity
-import com.dhruvpatel.tvnews.data.model.toDomainArticle
-import com.dhruvpatel.tvnews.data.source.NewsApiService
-import com.dhruvpatel.tvnews.data.source.NewsDao
+import com.dhruvpatel.tvnews.data.local.NewsDao
+import com.dhruvpatel.tvnews.data.mapper.toArticleEntity
+import com.dhruvpatel.tvnews.data.mapper.toDomainArticle
+import com.dhruvpatel.tvnews.data.remote.NewsApiService
 import com.dhruvpatel.tvnews.domain.model.Article
 import com.dhruvpatel.tvnews.domain.repository.NewsRepository
 import kotlinx.coroutines.flow.Flow

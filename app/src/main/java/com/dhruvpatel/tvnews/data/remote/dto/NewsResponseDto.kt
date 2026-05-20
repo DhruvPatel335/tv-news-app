@@ -1,4 +1,4 @@
-package com.dhruvpatel.tvnews.data.model
+package com.dhruvpatel.tvnews.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 

@@ -1,4 +1,4 @@
-package com.dhruvpatel.tvnews.presentation.news
+package com.dhruvpatel.tvnews.presentation.news.model
 
 import com.dhruvpatel.tvnews.domain.model.Article
 

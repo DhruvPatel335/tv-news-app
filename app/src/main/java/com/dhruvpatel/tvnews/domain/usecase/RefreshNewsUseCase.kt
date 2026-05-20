@@ -12,7 +12,7 @@ class RefreshNewsUseCase @Inject constructor(
             repository.refreshNews()
             Result.success(Unit)
         } catch (e: CancellationException) {
-            throw e
+            Result.failure(e)
         } catch (e: Exception) {
             Result.failure(e)
         }

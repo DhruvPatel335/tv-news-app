@@ -1,23 +1,10 @@
-package com.dhruvpatel.tvnews.data.model
+package com.dhruvpatel.tvnews.data.mapper
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.dhruvpatel.tvnews.data.local.entity.ArticleEntity
+import com.dhruvpatel.tvnews.data.remote.dto.ArticleDto
+import com.dhruvpatel.tvnews.data.remote.dto.SourceDto
 import com.dhruvpatel.tvnews.domain.model.Article
 import com.dhruvpatel.tvnews.domain.model.Source
-
-@Entity(tableName = "articles")
-data class ArticleEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    val author: String?,
-    val title: String,
-    val description: String?,
-    val url: String,
-    val urlToImage: String?,
-    val publishedAt: String,
-    val content: String?,
-    val sourceName: String
-)
 
 fun ArticleEntity.toDomainArticle(): Article {
     return Article(
@@ -44,3 +31,24 @@ fun ArticleDto.toArticleEntity(): ArticleEntity {
         sourceName = source.name
     )
 }
+
+fun ArticleDto.toDomainArticle(): Article {
+    return Article(
+        author = author,
+        title = title,
+        description = description,
+        url = url,
+        urlToImage = urlToImage,
+        publishedAt = publishedAt,
+        content = content,
+        source = source.toDomainSource()
+    )
+}
+
+fun SourceDto.toDomainSource(): Source {
+    return Source(
+        id = id,
+        name = name
+    )
+}
+

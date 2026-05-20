@@ -1,10 +1,10 @@
-package com.dhruvpatel.tvnews.data.source
+package com.dhruvpatel.tvnews.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.dhruvpatel.tvnews.data.model.ArticleEntity
+import com.dhruvpatel.tvnews.data.local.entity.ArticleEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
