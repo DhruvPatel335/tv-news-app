@@ -2,6 +2,7 @@ package com.dhruvpatel.tvnews.presentation.news.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dhruvpatel.tvnews.domain.usecase.FetchTopNewsUseCase
 import com.dhruvpatel.tvnews.domain.usecase.GetNewsUseCase
 import com.dhruvpatel.tvnews.domain.usecase.RefreshNewsUseCase
 import com.dhruvpatel.tvnews.presentation.news.model.NewsState
@@ -21,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class NewsViewModel @Inject constructor(
     private val getNewsUseCase: GetNewsUseCase,
-    private val refreshNewsUseCase: RefreshNewsUseCase
+    private val refreshNewsUseCase: RefreshNewsUseCase,
+    private val fetchTopNewsUseCase: FetchTopNewsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(NewsState())
@@ -32,7 +34,14 @@ class NewsViewModel @Inject constructor(
 
     init {
         getArticles()
-        refreshNews()
+        // Initial load: Fetch only Top News
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
+            val result = fetchTopNewsUseCase()
+            _state.value = _state.value.copy(isLoading = false)
+            
+            handleResult(result)
+        }
     }
 
     private fun getArticles() {
@@ -47,17 +56,22 @@ class NewsViewModel @Inject constructor(
     }
 
     fun refreshNews() {
+        // Comprehensive refresh: Parallel fetching
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             val result = refreshNewsUseCase()
             _state.value = _state.value.copy(isLoading = false)
             
-            result.onFailure { error ->
-                if (_state.value.articles.isEmpty()) {
-                    _state.value = _state.value.copy(error = error.message ?: "Failed to refresh news")
-                } else {
-                    _eventFlow.emit(NewsUiEvent.ShowToast(error.message ?: "Failed to refresh news. Showing cached data."))
-                }
+            handleResult(result)
+        }
+    }
+
+    private suspend fun handleResult(result: Result<Unit>) {
+        result.onFailure { error ->
+            if (_state.value.articles.isEmpty()) {
+                _state.value = _state.value.copy(error = error.message ?: "Failed to fetch news")
+            } else {
+                _eventFlow.emit(NewsUiEvent.ShowToast(error.message ?: "Failed to update news. Showing cached data."))
             }
         }
     }

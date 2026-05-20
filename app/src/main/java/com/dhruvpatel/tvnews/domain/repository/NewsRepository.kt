@@ -5,5 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface NewsRepository {
     fun getArticles(): Flow<List<Article>>
+    suspend fun fetchTopNews()
     suspend fun refreshNews()
 }
