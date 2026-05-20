@@ -8,5 +8,7 @@ import javax.inject.Inject
 class GetNewsUseCase @Inject constructor(
     private val repository: NewsRepository,
 ) {
-    operator fun invoke(): Flow<List<Article>> = repository.getArticles()
+    operator fun invoke(): Flow<List<Article>> {
+        return repository.getArticles()
+    }
 }

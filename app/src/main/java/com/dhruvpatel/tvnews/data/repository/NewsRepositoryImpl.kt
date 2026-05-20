@@ -1,5 +1,6 @@
 package com.dhruvpatel.tvnews.data.repository
 
+import com.dhruvpatel.tvnews.BuildConfig
 import com.dhruvpatel.tvnews.data.model.toArticleEntity
 import com.dhruvpatel.tvnews.data.model.toDomainArticle
 import com.dhruvpatel.tvnews.data.source.NewsApiService
@@ -22,8 +23,7 @@ class NewsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun refreshNews() {
-        // Fetch from network and update cache
-        val response = apiService.getTopHeadlines(apiKey = "YOUR_API_KEY")
+        val response = apiService.getTopHeadlines(apiKey = BuildConfig.NEWS_API_KEY)
         val entities = response.articles.map { it.toArticleEntity() }
         dao.clearArticles()
         dao.insertArticles(entities)
