@@ -1,5 +1,6 @@
 package com.dhruvpatel.tvnews.di
 
+import com.dhruvpatel.tvnews.common.network.ConnectivityObserver
 import com.dhruvpatel.tvnews.data.local.NewsDao
 import com.dhruvpatel.tvnews.data.remote.NewsApiService
 import com.dhruvpatel.tvnews.data.repository.NewsRepositoryImpl
@@ -18,8 +19,9 @@ object RepositoryModule {
     @Singleton
     fun provideNewsRepository(
         apiService: NewsApiService,
-        dao: NewsDao
+        dao: NewsDao,
+        connectivityObserver: ConnectivityObserver
     ): NewsRepository {
-        return NewsRepositoryImpl(apiService, dao)
+        return NewsRepositoryImpl(apiService, dao, connectivityObserver)
     }
 }
