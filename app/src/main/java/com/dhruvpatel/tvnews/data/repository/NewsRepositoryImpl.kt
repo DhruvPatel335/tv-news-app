@@ -26,6 +26,8 @@ class NewsRepositoryImpl @Inject constructor(
     private val connectivityObserver: ConnectivityObserver
 ) : NewsRepository {
 
+    // Mutex to ensure only one refresh operation happens at a time, 
+    // preventing race conditions on local cache.
     private val refreshMutex = Mutex()
     private var refreshCount = 0
 
@@ -42,6 +44,7 @@ class NewsRepositoryImpl @Inject constructor(
                 apiService.getTopHeadlines(apiKey = BuildConfig.NEWS_API_KEY)
             }
             val entities = response.articles.map { it.toArticleEntity() }
+            // Clear old cache before inserting new top headlines
             dao.clearArticles()
             dao.insertArticles(entities)
             refreshCount++
@@ -54,6 +57,7 @@ class NewsRepositoryImpl @Inject constructor(
             coroutineScope {
                 val categories = listOf("business", "technology", "science")
 
+                // Fetch news for multiple categories in parallel using async/awaitAll
                 val results = categories.map { category ->
                     async {
                         runCatching {
@@ -71,11 +75,13 @@ class NewsRepositoryImpl @Inject constructor(
                 val failures = results.filter { it.isFailure }
 
                 if (allArticles.isNotEmpty()) {
+                    // Update cache if we got any new articles
                     dao.clearArticles()
                     dao.insertArticles(allArticles)
                     refreshCount++
                 }
 
+                // If any category failed to fetch, propagate the first error encountered
                 if (failures.isNotEmpty()) {
                     throw failures.first().exceptionOrNull()!!
                 }

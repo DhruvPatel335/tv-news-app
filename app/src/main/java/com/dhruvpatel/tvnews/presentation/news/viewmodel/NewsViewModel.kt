@@ -2,6 +2,9 @@ package com.dhruvpatel.tvnews.presentation.news.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dhruvpatel.tvnews.R
+import com.dhruvpatel.tvnews.common.UiText
+import com.dhruvpatel.tvnews.common.network.AppException
 import com.dhruvpatel.tvnews.domain.usecase.FetchTopNewsUseCase
 import com.dhruvpatel.tvnews.domain.usecase.GetNewsUseCase
 import com.dhruvpatel.tvnews.domain.usecase.RefreshNewsUseCase
@@ -20,21 +23,25 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NewsViewModel @Inject constructor(
+class  NewsViewModel @Inject constructor(
     private val getNewsUseCase: GetNewsUseCase,
     private val refreshNewsUseCase: RefreshNewsUseCase,
     private val fetchTopNewsUseCase: FetchTopNewsUseCase
 ) : ViewModel() {
 
+    // Internal mutable state for the UI, exposed as a read-only StateFlow
     private val _state = MutableStateFlow(NewsState())
     val state: StateFlow<NewsState> = _state.asStateFlow()
 
+    // SharedFlow for one-time UI events like showing Toasts
     private val _eventFlow = MutableSharedFlow<NewsUiEvent>()
     val eventFlow: SharedFlow<NewsUiEvent> = _eventFlow.asSharedFlow()
 
     init {
+        // Start observing local database changes immediately
         getArticles()
-        // Initial load: Fetch only Top News
+        
+        // Initial load: Fetch only Top News from the API
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             val result = fetchTopNewsUseCase()
@@ -44,6 +51,10 @@ class NewsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Observes the local database for news articles and updates the state.
+     * This provides an offline-first experience.
+     */
     private fun getArticles() {
         getNewsUseCase()
             .onEach { articles ->
@@ -55,8 +66,10 @@ class NewsViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    /**
+     * Triggers a comprehensive refresh by fetching both top news and categorized news.
+     */
     fun refreshNews() {
-        // Comprehensive refresh: Parallel fetching
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             val result = refreshNewsUseCase()
@@ -68,10 +81,15 @@ class NewsViewModel @Inject constructor(
 
     private suspend fun handleResult(result: Result<Unit>) {
         result.onFailure { error ->
+            val uiText = (error as? AppException)?.uiText 
+                ?: UiText.StringResource(R.string.failed_to_fetch_news)
+            
             if (_state.value.articles.isEmpty()) {
-                _state.value = _state.value.copy(error = error.message ?: "Failed to fetch news")
+                _state.value = _state.value.copy(error = uiText)
             } else {
-                _eventFlow.emit(NewsUiEvent.ShowToast(error.message ?: "Failed to update news. Showing cached data."))
+                val toastUiText = (error as? AppException)?.uiText 
+                    ?: UiText.StringResource(R.string.failed_to_update_news)
+                _eventFlow.emit(NewsUiEvent.ShowToast(toastUiText))
             }
         }
     }

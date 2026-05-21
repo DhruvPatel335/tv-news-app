@@ -5,7 +5,7 @@ import com.dhruvpatel.tvnews.domain.repository.NewsRepository
 import javax.inject.Inject
 
 class RefreshNewsUseCase @Inject constructor(
-    private val repository: NewsRepository,
+    private val repository: NewsRepository
 ) {
     suspend operator fun invoke(): Result<Unit> {
         return safeApiCall {

@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">News Headlines</string>
+    <string name="news_headlines">News Headlines</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="greeting">Hello %s!</string>
+
+    <!-- Error Messages -->
+    <string name="error_no_internet">No internet connection. Please check your network.</string>
+    <string name="error_unauthorized">Unauthorized. Please check your API key.</string>
+    <string name="error_not_found">Resource not found.</string>
+    <string name="error_too_many_requests">Too many requests. Please try again later.</string>
+    <string name="error_server_error">Server error. Please try again later.</string>
+    <string name="error_unknown">Something went wrong. Please try again.</string>
+    <string name="failed_to_fetch_news">Failed to fetch news</string>
+    <string name="failed_to_update_news">Failed to update news. Showing cached data.</string>
 </resources>
